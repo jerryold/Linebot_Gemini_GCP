@@ -15,17 +15,27 @@ import os
 import sys
 from io import BytesIO
 
+from datetime import datetime
+import pytz
+
 import aiohttp
 import PIL.Image
+from firebase import firebase
+import json
 
 
 # get channel_secret and channel_access_token from your environment variable
 channel_secret = os.getenv('ChannelSecret', None)
 channel_access_token = os.getenv('ChannelAccessToken', None)
-gemini_key = os.getenv('GEMINI_API_KEY') 
+gemini_key = os.getenv('GEMINI_API_KEY')
+firebase_url = os.getenv('FIREBASE_URL')
 
 imgage_prompt = '''
 Describe this image with scientific detail, reply in zh-TW:
+'''
+
+specific_prompt = '''
+Please analyze the international Taiwan stock market the day before yesterday and provide a summary, reply in zh-TW:
 '''
 
 if channel_secret is None:
@@ -36,6 +46,9 @@ if channel_access_token is None:
     sys.exit(1)
 if gemini_key is None:
     print('Specify GEMINI_API_KEY as environment variable.')
+    sys.exit(1)
+if firebase_url is None:
+    print('Specify FIREBASE_URL as environment variable.')
     sys.exit(1)
 
 # Initialize the FastAPI app for LINEBot
@@ -61,9 +74,14 @@ async def handle_callback(request: Request):
         events = parser.parse(body, signature)
     except InvalidSignatureError:
         raise HTTPException(status_code=400, detail="Invalid signature")
-
+    now = datetime.now(pytz.timezone('Asia/Taipei'))
     for event in events:
         if not isinstance(event, MessageEvent):
+            continue
+
+        if now.weekday() < 5 and now.hour == 14 and now.minute ==35:  
+            reply_msg = TextSendMessage(text=specific_prompt)
+            await line_bot_api.reply_message(event.reply_token, reply_msg)
             continue
 
         if (event.message.type == "text"):

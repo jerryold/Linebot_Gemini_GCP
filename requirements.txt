@@ -6,4 +6,6 @@ yfinance
 pydantic
 tiktoken
 Pillow
+datetime
+pytz
 git+https://github.com/ozgur/python-firebase
