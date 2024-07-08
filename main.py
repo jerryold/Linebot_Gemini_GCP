@@ -14,7 +14,7 @@ import google.generativeai as genai
 import os
 import sys
 from io import BytesIO
-import aioschedule as schedule
+# import aioschedule as schedule
 
 from datetime import datetime
 import pytz
@@ -23,7 +23,7 @@ import aiohttp
 import PIL.Image
 from firebase import firebase
 import json
-import asyncio
+# import asyncio
 
 
 # get channel_secret and channel_access_token from your environment variable
@@ -31,7 +31,7 @@ channel_secret = os.getenv('ChannelSecret', None)
 channel_access_token = os.getenv('ChannelAccessToken', None)
 gemini_key = os.getenv('GEMINI_API_KEY')
 firebase_url = os.getenv('FIREBASE_URL')
-user_id = os.getenv('USER_ID')
+# user_id = os.getenv('USER_ID')
 
 imgage_prompt = '''
 Describe this image with scientific detail, reply in zh-TW:

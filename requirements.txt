@@ -7,7 +7,5 @@ pydantic
 tiktoken
 Pillow
 datetime
-aioschedule
-asyncio
 pytz
 git+https://github.com/ozgur/python-firebase
