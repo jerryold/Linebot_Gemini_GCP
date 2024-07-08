@@ -35,7 +35,7 @@ Describe this image with scientific detail, reply in zh-TW:
 '''
 
 specific_prompt = '''
-Please analyze the international Taiwan stock market the day before yesterday and provide a summary, reply in zh-TW:
+Please analyze the international Taiwan stock market and provide a summary, reply in zh-TW:
 '''
 
 if channel_secret is None:
@@ -78,12 +78,15 @@ async def handle_callback(request: Request):
     for event in events:
         if not isinstance(event, MessageEvent):
             continue
-
-        if now.weekday() < 5 and now.hour == 15 and now.minute ==00:  
-            response = await generate_gemini_text_complete(specific_prompt)
-            reply_msg = TextSendMessage(text=response)
-            await line_bot_api.reply_message(event.reply_token, reply_msg)
-            continue
+        if now.weekday() < 5 and now.hour == 17 and now.minute == 00:
+                try:
+                    # 假設 generate_gemini_text_complete 是一個異步函數
+                    response = await generate_gemini_text_complete(specific_prompt)
+                    reply_msg = TextSendMessage(text=response)
+                    await line_bot_api.reply_message(event.reply_token, reply_msg)
+                except Exception as e:
+                    print(f"Error: {e}")
+                continue
 
         if (event.message.type == "text"):
             # Provide a default value for reply_msg
