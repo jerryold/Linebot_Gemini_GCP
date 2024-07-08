@@ -39,7 +39,7 @@ To use the Receipt Helper, send a picture of your receipt to the LINE bot. The b
 
 ## Qrcode
 If you'd like to use the chatbot, please feel free to scan qrcode to add friend.
-![Chatbot](https://github.com/jerryold/linebot-gemini-gcp/assets/12774427/7c1650a4-9c82-48db-8b48-8f24c2d306c0)
-
-![image](https://github.com/jerryold/linebot-gemini-gcp/assets/12774427/9fb8c2a5-9d4a-49f7-933a-b69d800924a3)
+| | |
+|:--:|:--:|
+| ![Chatbot](https://github.com/jerryold/linebot-gemini-gcp/assets/12774427/7c1650a4-9c82-48db-8b48-8f24c2d306c0) | ![image](https://github.com/jerryold/linebot-gemini-gcp/assets/12774427/9fb8c2a5-9d4a-49f7-933a-b69d800924a3) |
 
