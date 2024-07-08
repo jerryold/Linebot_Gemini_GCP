@@ -14,6 +14,7 @@ import google.generativeai as genai
 import os
 import sys
 from io import BytesIO
+import aioschedule as schedule
 
 from datetime import datetime
 import pytz
@@ -22,6 +23,7 @@ import aiohttp
 import PIL.Image
 from firebase import firebase
 import json
+import asyncio
 
 
 # get channel_secret and channel_access_token from your environment variable
@@ -29,14 +31,13 @@ channel_secret = os.getenv('ChannelSecret', None)
 channel_access_token = os.getenv('ChannelAccessToken', None)
 gemini_key = os.getenv('GEMINI_API_KEY')
 firebase_url = os.getenv('FIREBASE_URL')
+user_id = os.getenv('USER_ID')
 
 imgage_prompt = '''
 Describe this image with scientific detail, reply in zh-TW:
 '''
 
-specific_prompt = '''
-Please analyze the international Taiwan stock market and provide a summary, reply in zh-TW:
-'''
+
 
 if channel_secret is None:
     print('Specify ChannelSecret as environment variable.')
@@ -61,6 +62,29 @@ parser = WebhookParser(channel_secret)
 # Initialize the Gemini Pro API
 genai.configure(api_key=gemini_key)
 
+async def scheduled_task():
+    now = datetime.now()
+    if now.weekday() < 5:  # 確保是工作日
+        specific_prompt = '''
+        Please analyze the international Taiwan stock market and provide a summary, reply in zh-TW:
+        '''
+        try:
+            response = await generate_gemini_text_complete(specific_prompt)
+            reply_msg = TextSendMessage(text=response)
+            await line_bot_api.push_message(user_id, reply_msg)
+           
+        except Exception as e:
+            print(f"Error: {e}")
+
+async def run_scheduler():
+    schedule.every().day.at("09:00").do(scheduled_task)
+    
+    while True:
+        await schedule.run_pending()
+        await asyncio.sleep(1)
+
+
+
 
 @app.post("/")
 async def handle_callback(request: Request):
@@ -74,19 +98,10 @@ async def handle_callback(request: Request):
         events = parser.parse(body, signature)
     except InvalidSignatureError:
         raise HTTPException(status_code=400, detail="Invalid signature")
-    now = datetime.now(pytz.timezone('Asia/Taipei'))
+    
     for event in events:
         if not isinstance(event, MessageEvent):
-            continue
-        if now.weekday() < 5 and now.hour == 17 and now.minute == 00:
-                try:
-                    
-                    response = await generate_gemini_text_complete(specific_prompt)
-                    reply_msg = TextSendMessage(text=response)
-                    await line_bot_api.reply_message(event.reply_token, reply_msg)
-                except Exception as e:
-                    print(f"Error: {e}")
-                continue
+            continue        
 
         if (event.message.type == "text"):
             # Provide a default value for reply_msg
@@ -136,3 +151,6 @@ def generate_result_from_image(img, prompt):
     response = model.generate_content([prompt, img], stream=True)
     response.resolve()
     return response
+
+
+asyncio.run(run_scheduler())
