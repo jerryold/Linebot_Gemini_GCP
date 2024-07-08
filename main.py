@@ -79,8 +79,9 @@ async def handle_callback(request: Request):
         if not isinstance(event, MessageEvent):
             continue
 
-        if now.weekday() < 5 and now.hour == 14 and now.minute ==35:  
-            reply_msg = TextSendMessage(text=specific_prompt)
+        if now.weekday() < 5 and now.hour == 15 and now.minute ==00:  
+            response = await generate_gemini_text_complete(specific_prompt)
+            reply_msg = TextSendMessage(text=response)
             await line_bot_api.reply_message(event.reply_token, reply_msg)
             continue
 
