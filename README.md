@@ -20,7 +20,7 @@
 - Aiohttp
 - PIL (Python Imaging Library)
 
-## Setup
+## Setup-Test
 
 1. Set the following environment variables:
    - `ChannelSecret`: Your LINE channel secret.
