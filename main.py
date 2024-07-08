@@ -62,26 +62,26 @@ parser = WebhookParser(channel_secret)
 # Initialize the Gemini Pro API
 genai.configure(api_key=gemini_key)
 
-async def scheduled_task():
-    now = datetime.now()
-    if now.weekday() < 5:  # 確保是工作日
-        specific_prompt = '''
-        Please analyze the international Taiwan stock market and provide a summary, reply in zh-TW:
-        '''
-        try:
-            response = await generate_gemini_text_complete(specific_prompt)
-            reply_msg = TextSendMessage(text=response)
-            await line_bot_api.push_message(user_id, reply_msg)
+# async def scheduled_task():
+#     now = datetime.now()
+#     if now.weekday() < 5:  # 確保是工作日
+#         specific_prompt = '''
+#         Please analyze the international Taiwan stock market and provide a summary, reply in zh-TW:
+#         '''
+#         try:
+#             response = await generate_gemini_text_complete(specific_prompt)
+#             reply_msg = TextSendMessage(text=response)
+#             await line_bot_api.push_message(user_id, reply_msg)
            
-        except Exception as e:
-            print(f"Error: {e}")
+#         except Exception as e:
+#             print(f"Error: {e}")
 
-async def run_scheduler():
-    schedule.every().day.at("17:40").do(scheduled_task)
+# async def run_scheduler():
+#     schedule.every().day.at("17:40").do(scheduled_task)
     
-    while True:
-        await schedule.run_pending()
-        await asyncio.sleep(1)
+#     while True:
+#         await schedule.run_pending()
+#         await asyncio.sleep(1)
 
 
 
@@ -153,4 +153,4 @@ def generate_result_from_image(img, prompt):
     return response
 
 
-asyncio.run(run_scheduler())
+# asyncio.run(run_scheduler())
