@@ -24,9 +24,6 @@ channel_secret = os.getenv('ChannelSecret', None)
 channel_access_token = os.getenv('ChannelAccessToken', None)
 gemini_key = os.getenv('GEMINI_API_KEY') 
 
-# channel_secret="8d99523725baf0e11b2971b93d363449"
-# channel_access_token="wOj/Mx4oRX7IU4RJ00l6IXqeFQ6EKe3cTVR95iXiAwDKOyW5LBsxladVAfomOV39FRBdV7nwaw2fLq32SYp0CJ56BQwpSorze0Bxmcm9I08mdHhFXzZsiAlqXtMrlYSy6BpNDEXDBfW5DVSNYW1UogdB04t89/1O/w1cDnyilFU="
-# gemini_key = "AIzaSyCQnjvsYaFa2GvPk8QvHgg9CRBMdaGDIOk"
 imgage_prompt = '''
 Describe this image with scientific detail, reply in zh-TW:
 '''
