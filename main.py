@@ -77,7 +77,7 @@ async def scheduled_task():
             print(f"Error: {e}")
 
 async def run_scheduler():
-    schedule.every().day.at("09:00").do(scheduled_task)
+    schedule.every().day.at("17:40").do(scheduled_task)
     
     while True:
         await schedule.run_pending()
