@@ -122,13 +122,15 @@ async def handle_callback(request: Request):
 
     return 'OK'
 @app.post("/schedule_task")
-async def schedule_task():   
+async def schedule_task(request: Request):
+    signature = request.headers['X-Line-Signature']
+    body = await request.body()
+    body = body.decode()
+   
     try:
-        msg = "Good morning"  
-       
+        msg = "Good morning"
         ret = generate_gemini_text_complete(f'{msg}, reply in 100 words:')
         reply_msg = TextSendMessage(text=ret.text)
-            
             
         user_ids = get_all_user_ids()  
             
@@ -138,7 +140,7 @@ async def schedule_task():
         return {"message": "Message sent successfully"}
     except LineBotApiError as e:
         raise HTTPException(status_code=500, detail=str(e))
-    
+        
 
 # @app.post("/")
 # async def handle_callback(request: Request):
