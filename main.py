@@ -1,6 +1,6 @@
 from linebot.models import FlexSendMessage
 from linebot.models import (
-    MessageEvent, TextSendMessage
+    FollowEvent, MessageEvent, TextSendMessage
 )
 from linebot.exceptions import (
     InvalidSignatureError
@@ -9,6 +9,7 @@ from linebot.aiohttp_async_http_client import AiohttpAsyncHttpClient
 from linebot import (
     AsyncLineBotApi, WebhookParser
 )
+from linebot.exceptions import LineBotApiError
 from fastapi import Request, FastAPI, HTTPException
 import google.generativeai as genai
 import os
@@ -26,12 +27,16 @@ import json
 # import asyncio
 
 
-# get channel_secret and channel_access_token from your environment variable
+# # get channel_secret and channel_access_token from your environment variable
 channel_secret = os.getenv('ChannelSecret', None)
 channel_access_token = os.getenv('ChannelAccessToken', None)
 gemini_key = os.getenv('GEMINI_API_KEY')
 firebase_url = os.getenv('FIREBASE_URL')
-# user_id = os.getenv('USER_ID')
+
+
+
+
+
 
 imgage_prompt = '''
 Describe this image with scientific detail, reply in zh-TW:
@@ -62,35 +67,23 @@ parser = WebhookParser(channel_secret)
 # Initialize the Gemini Pro API
 genai.configure(api_key=gemini_key)
 
-# async def scheduled_task():
-#     now = datetime.now()
-#     if now.weekday() < 5:  # 確保是工作日
-#         specific_prompt = '''
-#         Please analyze the international Taiwan stock market and provide a summary, reply in zh-TW:
-#         '''
-#         try:
-#             response = await generate_gemini_text_complete(specific_prompt)
-#             reply_msg = TextSendMessage(text=response)
-#             await line_bot_api.push_message(user_id, reply_msg)
-           
-#         except Exception as e:
-#             print(f"Error: {e}")
+def save_user_id(user_id):
+    with open("user_ids.txt", "a") as file:
+        file.write(user_id + "\n")
 
-# async def run_scheduler():
-#     schedule.every().day.at("17:40").do(scheduled_task)
-    
-#     while True:
-#         await schedule.run_pending()
-#         await asyncio.sleep(1)
-
-
+def get_all_user_ids():
+    user_ids = []
+    try:
+        with open("user_ids.txt", "r") as file:
+            user_ids = [line.strip() for line in file.readlines()]
+    except FileNotFoundError:
+        print("user_ids.txt file not found.")
+    return user_ids
 
 
 @app.post("/")
 async def handle_callback(request: Request):
     signature = request.headers['X-Line-Signature']
-
-    # get request body as text
     body = await request.body()
     body = body.decode()
 
@@ -100,37 +93,98 @@ async def handle_callback(request: Request):
         raise HTTPException(status_code=400, detail="Invalid signature")
     
     for event in events:
-        if not isinstance(event, MessageEvent):
-            continue        
+        # Check if the event is a FollowEvent and save the user_id
+        if isinstance(event, FollowEvent):
+            save_user_id(event.source.user_id)
 
-        if (event.message.type == "text"):
-            # Provide a default value for reply_msg
+        if not isinstance(event, MessageEvent):
+            continue
+
+        if event.message.type == "text":
+            # Assume generate_gemini_text_complete is defined elsewhere
             msg = event.message.text
             ret = generate_gemini_text_complete(f'{msg}, reply in zh-TW:')
             reply_msg = TextSendMessage(text=ret.text)
-            await line_bot_api.reply_message(
-                event.reply_token,
-                reply_msg
-            )
-        elif (event.message.type == "image"):
-            message_content = await line_bot_api.get_message_content(
-                event.message.id)
+            await line_bot_api.reply_message(event.reply_token, reply_msg)
+        elif event.message.type == "image":
+            message_content = await line_bot_api.get_message_content(event.message.id)
             image_content = b''
             async for s in message_content.iter_content():
                 image_content += s
             img = PIL.Image.open(BytesIO(image_content))
-
-            result = generate_result_from_image(img, imgage_prompt)
+            # Assume generate_result_from_image is defined elsewhere
+            result = generate_result_from_image(img, "image_prompt")
             reply_msg = TextSendMessage(text=result.text)
-            await line_bot_api.reply_message(
-                event.reply_token,
-                reply_msg
-            )
+            await line_bot_api.reply_message(event.reply_token, reply_msg)
             return 'OK'
         else:
             continue
 
     return 'OK'
+@app.post("/schedule_task")
+async def schedule_task():   
+    try:
+        msg = "Good morning"  
+       
+        ret = generate_gemini_text_complete(f'{msg}, reply in 100 words:')
+        reply_msg = TextSendMessage(text=ret.text)
+            
+            
+        user_ids = get_all_user_ids()  
+            
+        for user_id in user_ids:
+            await line_bot_api.push_message(user_id, reply_msg)
+            
+        return {"message": "Message sent successfully"}
+    except LineBotApiError as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    
+
+# @app.post("/")
+# async def handle_callback(request: Request):
+#     signature = request.headers['X-Line-Signature']
+
+#     # get request body as text
+#     body = await request.body()
+#     body = body.decode()
+
+#     try:
+#         events = parser.parse(body, signature)
+#     except InvalidSignatureError:
+#         raise HTTPException(status_code=400, detail="Invalid signature")
+    
+#     for event in events:
+#         if not isinstance(event, MessageEvent):
+#             continue        
+
+#         if (event.message.type == "text"):
+#             # Provide a default value for reply_msg
+#             msg = event.message.text
+#             ret = generate_gemini_text_complete(f'{msg}, reply in zh-TW:')
+#             reply_msg = TextSendMessage(text=ret.text)
+#             await line_bot_api.reply_message(
+#                 event.reply_token,
+#                 reply_msg
+#             )
+#         elif (event.message.type == "image"):
+#             message_content = await line_bot_api.get_message_content(
+#                 event.message.id)
+#             image_content = b''
+#             async for s in message_content.iter_content():
+#                 image_content += s
+#             img = PIL.Image.open(BytesIO(image_content))
+
+#             result = generate_result_from_image(img, imgage_prompt)
+#             reply_msg = TextSendMessage(text=result.text)
+#             await line_bot_api.reply_message(
+#                 event.reply_token,
+#                 reply_msg
+#             )
+#             return 'OK'
+#         else:
+#             continue
+
+#     return 'OK'
 
 
 def generate_gemini_text_complete(prompt):
