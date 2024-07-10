@@ -69,7 +69,7 @@ parser = WebhookParser(channel_secret)
 # Initialize the Gemini Pro API
 genai.configure(api_key=gemini_key)
 
-line_bot_api = LineBotApi('<channel access token>')
+line_bot_api = LineBotApi(channel_access_token)
 
 class UserIdRequest(BaseModel):
     user_id: str
