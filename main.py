@@ -64,6 +64,7 @@ app = FastAPI()
 session = aiohttp.ClientSession()
 async_http_client = AiohttpAsyncHttpClient(session)
 line_bot_api = AsyncLineBotApi(channel_access_token, async_http_client)
+line_bot_api1 = LineBotApi(channel_access_token)
 
 parser = WebhookParser(channel_secret)
 
@@ -93,26 +94,12 @@ def generate_result_from_image(img, prompt):
 @app.post("/usermessage")
 async def send_user_message():
     
-    # with open('user_info.json', 'r') as json_file:
-    #     user_info = json.load(json_file)
-        
-    # user_id = user_info.get('user_id')
-    
-    # if user_id:
-    #     message = TextSendMessage(text="this is test")
-    #     try:
-    #         line_bot_api.push_message(user_id, message)
-    #         print(f"Success to {user_id}")
-    #     except Exception as e:
-    #         print(f"Fail to {user_id} {e}")
-    # else:
-    #     print("Did not find any user")
     result=generate_gemini_text_complete('say good moring, reply in zh-TW:')
     message = TextSendMessage(text=result)
 
     try:
         
-        await line_bot_api.push_message('U0a954d9a98db73941f98259b1f4bfb83', message)
+        await line_bot_api1.push_message('U0a954d9a98db73941f98259b1f4bfb83', message)
         print(f"Success to U0a954d9a98db73941f98259b1f4bfb83")
     except Exception as e:
         print(f"Fail to U0a954d9a98db73941f98259b1f4bfb83 {e}")
