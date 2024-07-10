@@ -72,24 +72,21 @@ genai.configure(api_key=gemini_key)
 @app.post("/usermessage")
 async def send_user_message():
     
-    firebase_instance = firebase.FirebaseApplication(firebase_url, None)   
-    users = firebase_instance.get('/users', None)
-
-    
-    if users:
+    with open('user_info.json', 'r') as json_file:
+        user_info = json.load(json_file)
         
-        for user_id in users:
-            
-            message = TextSendMessage(text="this is test")
-            try:
-                
-                line_bot_api.push_message(user_id, message)
-                print(f"Success to {user_id}")
-            except Exception as e:
-                print(f"Fail to {user_id} {e}")
+    user_id = user_info.get('user_id')
+    
+    if user_id:
+        message = TextSendMessage(text="this is test")
+        try:
+            line_bot_api.push_message(user_id, message)
+            print(f"Success to {user_id}")
+        except Exception as e:
+            print(f"Fail to {user_id} {e}")
     else:
         print("Did not find any user")
-    return {"message": "Success to send message to all users"}
+    return {"message": "Success to send message to user"}
 
 
 
@@ -110,10 +107,15 @@ async def handle_callback(request: Request):
         # i also want to make bot return the event user id
         if isinstance(event, FollowEvent):
             profile = line_bot_api.get_profile(event.source.user_id)
-            user_id = profile.user_id
-            display_name = profile.display_name
-            firebase_instance = firebase.FirebaseApplication(firebase_url, None)
-            result = firebase_instance.put('/users', user_id, {"display_name": display_name})
+            user_info = {
+                "user_id": profile.user_id,
+                "display_name": profile.display_name
+            }
+
+            file_name = "user_info.json"           
+            with open(file_name, 'w') as json_file:
+                json.dump(user_info, json_file, ensure_ascii=False, indent=4)
+            
             
             continue
         if not isinstance(event, MessageEvent):
