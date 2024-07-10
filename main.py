@@ -94,7 +94,7 @@ def generate_result_from_image(img, prompt):
 @app.post("/usermessage")
 async def send_user_message():
     
-    result=generate_gemini_text_complete('say good moring, reply in zh-TW:')
+    result=generate_gemini_text_complete('please say some morning motivation word, then analyze the Taiwan Stock the day before yesterday,and find out the important stock news reply in zh-TW:')
     message = TextSendMessage(text=result.text)
 
     try:
