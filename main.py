@@ -112,11 +112,11 @@ async def handle_callback(request: Request):
             # Provide a default value for reply_msg
             msg = event.message.text
             ret = generate_gemini_text_complete(f'{msg}, reply in zh-TW:')
-            reply_msg = TextSendMessage(text=ret.text)
+            reply_text = ret.text + "\n" + str(event.source.user_id)
+            reply_msg = TextSendMessage(text=reply_text)
             await line_bot_api.reply_message(
                 event.reply_token,
-                reply_msg+"\n"+str(event.source.user_id)
-                
+                [reply_msg]  
             )
                         
         elif (event.message.type == "image"):
