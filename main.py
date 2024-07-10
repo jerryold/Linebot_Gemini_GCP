@@ -112,7 +112,7 @@ async def send_user_message():
 
     try:
         
-        line_bot_api.push_message('U0a954d9a98db73941f98259b1f4bfb83', message)
+        await line_bot_api.push_message('U0a954d9a98db73941f98259b1f4bfb83', message)
         print(f"Success to U0a954d9a98db73941f98259b1f4bfb83")
     except Exception as e:
         print(f"Fail to U0a954d9a98db73941f98259b1f4bfb83 {e}")
