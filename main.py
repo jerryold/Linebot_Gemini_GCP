@@ -9,6 +9,8 @@ from linebot.aiohttp_async_http_client import AiohttpAsyncHttpClient
 from linebot import (
     AsyncLineBotApi, WebhookParser
 )
+
+from linebot import LineBotApi
 from linebot.exceptions import LineBotApiError
 from fastapi import Request, FastAPI, HTTPException
 import google.generativeai as genai
@@ -24,7 +26,7 @@ import aiohttp
 import PIL.Image
 from firebase import firebase
 import json
-# import asyncio
+from pydantic import BaseModel
 
 
 # # get channel_secret and channel_access_token from your environment variable
@@ -67,19 +69,18 @@ parser = WebhookParser(channel_secret)
 # Initialize the Gemini Pro API
 genai.configure(api_key=gemini_key)
 
-def save_user_id(user_id):
-    with open("user_ids.txt", "a") as file:
-        file.write(user_id + "\n")
+line_bot_api = LineBotApi('<channel access token>')
 
-def get_all_user_ids():
-    user_ids = []
+class UserIdRequest(BaseModel):
+    user_id: str
+
+@app.post("/get_userid")
+async def get_userid(request: UserIdRequest):
     try:
-        with open("user_ids.txt", "r") as file:
-            user_ids = [line.strip() for line in file.readlines()]
-    except FileNotFoundError:
-        print("user_ids.txt file not found.")
-    return user_ids
-
+        profile = line_bot_api.get_profile(request.user_id)
+        return {"user_id": profile.user_id, "display_name": profile.display_name}
+    except LineBotApiError as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
 @app.post("/")
 async def handle_callback(request: Request):
@@ -94,8 +95,6 @@ async def handle_callback(request: Request):
     
     for event in events:
         # Check if the event is a FollowEvent and save the user_id
-        if isinstance(event, FollowEvent):
-            save_user_id(event.source.user_id)
 
         if not isinstance(event, MessageEvent):
             continue
@@ -121,26 +120,7 @@ async def handle_callback(request: Request):
             continue
 
     return 'OK'
-@app.post("/schedule_task")
-async def schedule_task(request: Request):
-    signature = request.headers['X-Line-Signature']
-    body = await request.body()
-    body = body.decode()
-   
-    try:
-        msg = "Good morning"
-        ret = generate_gemini_text_complete(f'{msg}, reply in 100 words:')
-        reply_msg = TextSendMessage(text=ret.text)
-            
-        user_ids = get_all_user_ids()  
-            
-        for user_id in user_ids:
-            await line_bot_api.push_message(user_id, reply_msg)
-            
-        return {"message": "Message sent successfully"}
-    except LineBotApiError as e:
-        raise HTTPException(status_code=500, detail=str(e))
-        
+
 
 # @app.post("/")
 # async def handle_callback(request: Request):
