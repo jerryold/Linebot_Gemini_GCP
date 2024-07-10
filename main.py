@@ -69,18 +69,29 @@ parser = WebhookParser(channel_secret)
 # Initialize the Gemini Pro API
 genai.configure(api_key=gemini_key)
 
-line_bot_api = LineBotApi(channel_access_token)
+@app.post("/usermessage")
+async def send_user_message():
+    
+    firebase_instance = firebase.FirebaseApplication(firebase_url, None)   
+    users = firebase_instance.get('/users', None)
 
-class UserIdRequest(BaseModel):
-    user_id: str
+    
+    if users:
+        
+        for user_id in users:
+            
+            message = TextSendMessage(text="this is test")
+            try:
+                
+                line_bot_api.push_message(user_id, message)
+                print(f"Success to {user_id}")
+            except Exception as e:
+                print(f"Fail to {user_id} {e}")
+    else:
+        print("Did not find any user")
+    return {"message": "Success to send message to all users"}
 
-@app.post("/get_userid")
-async def get_userid(request: UserIdRequest):
-    try:
-        profile = line_bot_api.get_profile(request.user_id)
-        return {"user_id": profile.user_id, "display_name": profile.display_name}
-    except LineBotApiError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+
 
 @app.post("/")
 async def handle_callback(request: Request):
