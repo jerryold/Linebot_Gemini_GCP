@@ -8,4 +8,5 @@ tiktoken
 Pillow
 datetime
 pytz
+asyncio
 git+https://github.com/ozgur/python-firebase
