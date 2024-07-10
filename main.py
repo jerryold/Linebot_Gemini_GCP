@@ -90,20 +90,45 @@ def generate_result_from_image(img, prompt):
     response.resolve()
     return response
 
-
 @app.post("/usermessage")
 async def send_user_message():
-    
-    result=generate_gemini_text_complete('please say some morning motivation word, then analyze the Taiwan Stock the day before yesterday,and find out the important stock news reply in zh-TW:')
+    result = generate_gemini_text_complete('請說一些早晨的激勵話語，然後分析前天的台灣股市，並找出重要的股市新聞，請用中文回答:')
     message = TextSendMessage(text=result.text)
 
+    # 讀取 user_info.json 文件以獲取所有用戶的信息
     try:
+        with open("user_info.json", "r") as json_file:
+            user_infos = json.load(json_file)
+    except FileNotFoundError:
+        print("user_info.json file not found.")
+        return {"message": "user_info.json file not found."}
+
+    # 遍歷每個用戶的信息並推送消息
+    for user_info in user_infos:
+        user_id = user_info.get("user_id")
+        if user_id:
+            try:
+                await line_bot_api.push_message(user_id, message)
+                print(f"Success to {user_id}")
+            except Exception as e:
+                print(f"Fail to {user_id} {e}")
+
+    return {"message": "Success to send message to all users"}
+
+
+# @app.post("/usermessage")
+# async def send_user_message():
+    
+#     result=generate_gemini_text_complete('please say some morning motivation word, then analyze the Taiwan Stock the day before yesterday,and find out the important stock news reply in zh-TW:')
+#     message = TextSendMessage(text=result.text)
+
+#     try:
         
-        await line_bot_api1.push_message('U0a954d9a98db73941f98259b1f4bfb83', message)
-        print(f"Success to U0a954d9a98db73941f98259b1f4bfb83")
-    except Exception as e:
-        print(f"Fail to U0a954d9a98db73941f98259b1f4bfb83 {e}")
-    return {"message": "Success to send message to user"}
+#         await line_bot_api1.push_message('U0a954d9a98db73941f98259b1f4bfb83', message)
+#         print(f"Success to U0a954d9a98db73941f98259b1f4bfb83")
+#     except Exception as e:
+#         print(f"Fail to U0a954d9a98db73941f98259b1f4bfb83 {e}")
+#     return {"message": "Success to send message to user"}
 
 
 
@@ -123,16 +148,28 @@ async def handle_callback(request: Request):
     for event in events:
         # i also want to make bot return the event user id
         if isinstance(event, FollowEvent):
-            profile = line_bot_api.get_profile(event.source.user_id)
+            profile = line_bot_api1.get_profile(event.source.user_id)
             user_info = {
                 "user_id": profile.user_id,
                 "display_name": profile.display_name
             }
 
-            # file_name = "user_info.json"           
-            # with open(file_name, 'w') as json_file:
-            #     json.dump(user_info, json_file, ensure_ascii=False, indent=4)
+            file_name = "user_info.json"           
+            try:
+                with open(file_name, 'r', encoding='utf-8') as json_file:
+                    users_info = json.load(json_file)
+            except FileNotFoundError:
+                # 如果文件不存在，則創建一個空列表
+                users_info = []
             
+            # 檢查用戶是否已存在於列表中
+            if not any(user['user_id'] == user_info['user_id'] for user in users_info):
+                # 將新用戶的信息添加到列表中
+                users_info.append(user_info)
+            
+                # 將更新後的列表寫回文件
+                with open(file_name, 'w', encoding='utf-8') as json_file:
+                    json.dump(users_info, json_file, ensure_ascii=False, indent=4)            
             
             continue
         if not isinstance(event, MessageEvent):
