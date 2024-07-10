@@ -95,7 +95,7 @@ def generate_result_from_image(img, prompt):
 async def send_user_message():
     
     result=generate_gemini_text_complete('say good moring, reply in zh-TW:')
-    message = TextSendMessage(text=result)
+    message = TextSendMessage(text=result.text)
 
     try:
         
