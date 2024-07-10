@@ -85,6 +85,8 @@ async def get_userid(request: UserIdRequest):
 @app.post("/")
 async def handle_callback(request: Request):
     signature = request.headers['X-Line-Signature']
+
+    # get request body as text
     body = await request.body()
     body = body.decode()
 
@@ -94,27 +96,43 @@ async def handle_callback(request: Request):
         raise HTTPException(status_code=400, detail="Invalid signature")
     
     for event in events:
-        # Check if the event is a FollowEvent and save the user_id
-
-        if not isinstance(event, MessageEvent):
+        # i also want to make bot return the event user id
+        if isinstance(event, FollowEvent):
+            profile = line_bot_api.get_profile(event.source.user_id)
+            user_id = profile.user_id
+            display_name = profile.display_name
+            firebase_instance = firebase.FirebaseApplication(firebase_url, None)
+            result = firebase_instance.put('/users', user_id, {"display_name": display_name})
+            
             continue
+        if not isinstance(event, MessageEvent):
+            continue        
 
-        if event.message.type == "text":
-            # Assume generate_gemini_text_complete is defined elsewhere
+        if (event.message.type == "text"):
+            # Provide a default value for reply_msg
             msg = event.message.text
             ret = generate_gemini_text_complete(f'{msg}, reply in zh-TW:')
             reply_msg = TextSendMessage(text=ret.text)
-            await line_bot_api.reply_message(event.reply_token, reply_msg)
-        elif event.message.type == "image":
-            message_content = await line_bot_api.get_message_content(event.message.id)
+            await line_bot_api.reply_message(
+                event.reply_token,
+                reply_msg+"\n"+str(event.source.user_id)
+                
+            )
+                        
+        elif (event.message.type == "image"):
+            message_content = await line_bot_api.get_message_content(
+                event.message.id)
             image_content = b''
             async for s in message_content.iter_content():
                 image_content += s
             img = PIL.Image.open(BytesIO(image_content))
-            # Assume generate_result_from_image is defined elsewhere
-            result = generate_result_from_image(img, "image_prompt")
+
+            result = generate_result_from_image(img, imgage_prompt)
             reply_msg = TextSendMessage(text=result.text)
-            await line_bot_api.reply_message(event.reply_token, reply_msg)
+            await line_bot_api.reply_message(
+                event.reply_token,
+                reply_msg
+            )
             return 'OK'
         else:
             continue
