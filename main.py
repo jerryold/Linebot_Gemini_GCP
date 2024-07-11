@@ -115,6 +115,25 @@ async def send_user_message():
     
     return {"message": "Success to send message to user"}
 
+@app.post("/afterworkmessage")
+async def send_user_message():
+    
+    result=generate_gemini_text_complete('please say some interesting word after work, and recommend type of dinner after work,please reply in zh-TW:')
+    message = TextSendMessage(text=result.text)
+    #create user_id list
+    user_id_list = ['U0a954d9a98db73941f98259b1f4bfb83','Uf7bc16da786923d10a1a8f6110a8b947',
+                    'Ue821ac226937a52b9f1770c20bc7cc35','U6545179fe8bf5e9cf2cf260203447770', #friends
+                    'U4debac703fd0890a031592ef7cd476c7','Ucdefd05a3c2bc3f5bedea00f191f1ace','U2f098e537327fc080ebd79b2ac485740'#family
+                    ]
+    for user_id in user_id_list:
+        try:
+            await line_bot_api1.push_message(user_id, message)
+            print(f"Success to {user_id}")
+        except LineBotApiError as e:
+            print(f"Fail to {user_id} {e}")
+    
+    return {"message": "Success to send message to user"}
+
 
 
 @app.post("/")
