@@ -116,7 +116,7 @@ async def send_user_message():
     return {"message": "Success to send message to user"}
 
 @app.post("/afterworkmessage")
-async def send_user_message():
+async def send_afterwork_message():
     
     result=generate_gemini_text_complete('please say some interesting word after work, and recommend type of dinner after work,please reply in zh-TW:')
     message = TextSendMessage(text=result.text)
