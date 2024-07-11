@@ -102,7 +102,7 @@ async def send_user_message():
     result=generate_gemini_text_complete('please say some morning motivation word for work, and find out most popular article on PTT or Dcard platform every day also attach each article link,please reply in zh-TW:')
     message = TextSendMessage(text=result.text)
     #create user_id list
-    user_id_list = ['U0a954d9a98db73941f98259b1f4bfb83','Uf7bc16da786923d10a1a8f6110a8b947',
+    user_id_list = ['Uf7bc16da786923d10a1a8f6110a8b947','U0a954d9a98db73941f98259b1f4bfb83',
                     'Ue821ac226937a52b9f1770c20bc7cc35','U6545179fe8bf5e9cf2cf260203447770', #friends
                     'U4debac703fd0890a031592ef7cd476c7','Ucdefd05a3c2bc3f5bedea00f191f1ace','U2f098e537327fc080ebd79b2ac485740'#family
                     ]
@@ -121,7 +121,7 @@ async def send_user_message():
     result=generate_gemini_text_complete('please say some interesting word after work, and recommend type of dinner after work,please reply in zh-TW:')
     message = TextSendMessage(text=result.text)
     #create user_id list
-    user_id_list = ['U0a954d9a98db73941f98259b1f4bfb83','Uf7bc16da786923d10a1a8f6110a8b947',
+    user_id_list = ['Uf7bc16da786923d10a1a8f6110a8b947','U0a954d9a98db73941f98259b1f4bfb83',
                     'Ue821ac226937a52b9f1770c20bc7cc35','U6545179fe8bf5e9cf2cf260203447770', #friends
                     'U4debac703fd0890a031592ef7cd476c7','Ucdefd05a3c2bc3f5bedea00f191f1ace','U2f098e537327fc080ebd79b2ac485740'#family
                     ]
@@ -150,7 +150,7 @@ async def handle_callback(request: Request):
         raise HTTPException(status_code=400, detail="Invalid signature")
     
     for event in events:
-        # i also want to make bot return the event user id
+        
         if isinstance(event, FollowEvent):
             profile = line_bot_api1.get_profile(event.source.user_id)
             user_info = {
