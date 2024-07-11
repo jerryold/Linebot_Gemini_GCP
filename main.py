@@ -99,7 +99,7 @@ def generate_result_from_image(img, prompt):
 @app.post("/usermessage")
 async def send_user_message():
     
-    result=generate_gemini_text_complete('please say some morning motivation word for work, and find out the important news the day before yesterday, please reply in zh-TW:')
+    result=generate_gemini_text_complete('please say some morning motivation word for work, and find out most popular article on ppt and dcard platform every day, please reply in zh-TW:')
     message = TextSendMessage(text=result.text)
     #create user_id list
     user_id_list = ['U0a954d9a98db73941f98259b1f4bfb83','Uf7bc16da786923d10a1a8f6110a8b947',
