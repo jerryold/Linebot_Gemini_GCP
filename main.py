@@ -99,7 +99,7 @@ def generate_result_from_image(img, prompt):
 @app.post("/usermessage")
 async def send_user_message():
     
-    result=generate_gemini_text_complete('https://goodinfo.tw/tw/StockAnnounceList.asp?START_DT=2024%2F7%2F6&END_DT=2024%2F7%2F12 \n,爬取這個網址並回傳股市新聞標題')
+    result=generate_gemini_text_complete('https://goodinfo.tw/tw/StockAnnounceList.asp?START_DT=2024%2F7%2F6&END_DT=2024%2F7%2F12 \n,爬取這個網址並回傳今日股市新聞標題及相關資訊')
     message = TextSendMessage(text=result.text)
     #create user_id list
     user_id_list = ['Uf7bc16da786923d10a1a8f6110a8b947','U0a954d9a98db73941f98259b1f4bfb83',
@@ -115,7 +115,7 @@ async def send_user_message():
 
     for group_id in global_group_ids:
         try:
-            await line_bot_api1.push_message(group_id, message)
+            line_bot_api1.push_message(group_id, message)
             print(f"Success to {group_id}")
         except LineBotApiError as e:
             print(f"Fail to {group_id} {e}")
@@ -132,7 +132,7 @@ async def send_afterwork_message():
     user_id_list = ['Uf7bc16da786923d10a1a8f6110a8b947','U0a954d9a98db73941f98259b1f4bfb83',
                     'Ue821ac226937a52b9f1770c20bc7cc35','U6545179fe8bf5e9cf2cf260203447770', #friends
                     'U4debac703fd0890a031592ef7cd476c7','Ucdefd05a3c2bc3f5bedea00f191f1ace','U2f098e537327fc080ebd79b2ac485740'#family
-                    ]
+                   ]
     for user_id in user_id_list:
         try:
             line_bot_api1.push_message(user_id, message)
@@ -142,7 +142,7 @@ async def send_afterwork_message():
 
     for group_id in global_group_ids:
         try:
-            await line_bot_api1.push_message(group_id, message)
+            line_bot_api1.push_message(group_id, message)
             print(f"Success to {group_id}")
         except LineBotApiError as e:
             print(f"Fail to {group_id} {e}")
