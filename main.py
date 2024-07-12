@@ -71,6 +71,8 @@ parser = WebhookParser(channel_secret)
 # Initialize the Gemini Pro API
 genai.configure(api_key=gemini_key)
 
+
+global_user_ids=set()
 global_group_ids = set()
 
 
@@ -102,11 +104,11 @@ async def send_user_message():
     result=generate_gemini_text_complete('https://goodinfo.tw/tw/StockAnnounceList.asp?START_DT=2024%2F7%2F6&END_DT=2024%2F7%2F12 \n,爬取這個網址並回傳股市訊息一覽和新聞')
     message = TextSendMessage(text=result.text)
     #create user_id list
-    user_id_list = ['Uf7bc16da786923d10a1a8f6110a8b947','U0a954d9a98db73941f98259b1f4bfb83',
-                    'Ue821ac226937a52b9f1770c20bc7cc35','U6545179fe8bf5e9cf2cf260203447770', #friends
-                    'U4debac703fd0890a031592ef7cd476c7','Ucdefd05a3c2bc3f5bedea00f191f1ace','U2f098e537327fc080ebd79b2ac485740'#family
-                    ]
-    for user_id in user_id_list:
+    # user_id_list = ['Uf7bc16da786923d10a1a8f6110a8b947','U0a954d9a98db73941f98259b1f4bfb83',
+    #                 'Ue821ac226937a52b9f1770c20bc7cc35','U6545179fe8bf5e9cf2cf260203447770', #friends
+    #                 'U4debac703fd0890a031592ef7cd476c7','Ucdefd05a3c2bc3f5bedea00f191f1ace','U2f098e537327fc080ebd79b2ac485740'#family
+    #                 ]
+    for user_id in global_user_ids:
         try:
             line_bot_api1.push_message(user_id, message)
             print(f"Success to {user_id}")
@@ -129,11 +131,11 @@ async def send_afterwork_message():
     result=generate_gemini_text_complete('please say some interesting word after work, and recommend type of dinner after work,please reply in zh-TW:')
     message = TextSendMessage(text=result.text)
     #create user_id list
-    user_id_list = ['Uf7bc16da786923d10a1a8f6110a8b947','U0a954d9a98db73941f98259b1f4bfb83',
-                    'Ue821ac226937a52b9f1770c20bc7cc35','U6545179fe8bf5e9cf2cf260203447770', #friends
-                    'U4debac703fd0890a031592ef7cd476c7','Ucdefd05a3c2bc3f5bedea00f191f1ace','U2f098e537327fc080ebd79b2ac485740'#family
-                   ]
-    for user_id in user_id_list:
+    # user_id_list = ['Uf7bc16da786923d10a1a8f6110a8b947','U0a954d9a98db73941f98259b1f4bfb83',
+    #                 'Ue821ac226937a52b9f1770c20bc7cc35','U6545179fe8bf5e9cf2cf260203447770', #friends
+    #                 'U4debac703fd0890a031592ef7cd476c7','Ucdefd05a3c2bc3f5bedea00f191f1ace','U2f098e537327fc080ebd79b2ac485740'#family
+    #                ]
+    for user_id in global_user_ids:
         try:
             line_bot_api1.push_message(user_id, message)
             print(f"Success to {user_id}")
@@ -173,6 +175,8 @@ async def handle_callback(request: Request):
 
             if hasattr(event.source, 'group_id') and event.source.group_id not in global_group_ids:
                 global_group_ids.add(event.source.group_id)
+            if hasattr(event.source, 'user_id')  and event.source.user_id not in global_user_ids:
+                global_user_ids.add(event.source.user_id)
             # Provide a default value for reply_msg
             msg = event.message.text
             ret = generate_gemini_text_complete(f'{msg}, reply in zh-TW:')
