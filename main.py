@@ -112,8 +112,16 @@ async def send_user_message():
             print(f"Success to {user_id}")
         except LineBotApiError as e:
             print(f"Fail to {user_id} {e}")
+
+    for group_id in global_group_ids:
+        try:
+            await line_bot_api1.push_message(group_id, message)
+            print(f"Success to {group_id}")
+        except LineBotApiError as e:
+            print(f"Fail to {group_id} {e}")
     
     return {"message": "Success to send message to user"}
+
 
 @app.post("/afterworkmessage")
 async def send_afterwork_message():
@@ -131,6 +139,13 @@ async def send_afterwork_message():
             print(f"Success to {user_id}")
         except LineBotApiError as e:
             print(f"Fail to {user_id} {e}")
+
+    for group_id in global_group_ids:
+        try:
+            await line_bot_api1.push_message(group_id, message)
+            print(f"Success to {group_id}")
+        except LineBotApiError as e:
+            print(f"Fail to {group_id} {e}")
     
     return {"message": "Success to send message to user"}
 
@@ -162,7 +177,7 @@ async def handle_callback(request: Request):
             msg = event.message.text
             ret = generate_gemini_text_complete(f'{msg}, reply in zh-TW:')
             # reply_text = ret.text + "\n" + str(event.source.user_id)
-            reply_text = ret.text+ "\n" + str(global_group_ids)
+            reply_text = ret.text
             reply_msg = TextSendMessage(text=reply_text)
             await line_bot_api.reply_message(
                 event.reply_token,                
