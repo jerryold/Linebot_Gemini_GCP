@@ -72,9 +72,11 @@ parser = WebhookParser(channel_secret)
 genai.configure(api_key=gemini_key)
 
 
-global_user_ids=set()
-global_group_ids = set()
+global_user_ids = set()
+global_user_ids.add("U0a954d9a98db73941f98259b1f4bfb83")  
 
+global_group_ids = set()
+global_group_ids.update(["C6d9704ae1c775b9bdb9e951b4c61867d", "Cd7b9ec691d4e8eea93a99e26bce18b9f", "C2f4ff934f57e1763aebec8b48bb44515"])  
 
 def generate_gemini_text_complete(prompt):
     """
@@ -128,7 +130,7 @@ async def send_user_message():
 @app.post("/afterworkmessage")
 async def send_afterwork_message():
     
-    result=generate_gemini_text_complete('please say some interesting word after work, and recommend type of dinner after work,please reply in zh-TW:')
+    result=generate_gemini_text_complete('告訴我有趣的笑話還有今天發生的事情,並推薦我下班後可以吃的有名餐廳')
     message = TextSendMessage(text=result.text)
     #create user_id list
     # user_id_list = ['Uf7bc16da786923d10a1a8f6110a8b947','U0a954d9a98db73941f98259b1f4bfb83',
