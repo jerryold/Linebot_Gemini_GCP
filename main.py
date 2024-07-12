@@ -108,7 +108,7 @@ async def send_user_message():
                     ]
     for user_id in user_id_list:
         try:
-            await line_bot_api1.push_message(user_id, message)
+            line_bot_api1.push_message(user_id, message)
             print(f"Success to {user_id}")
         except LineBotApiError as e:
             print(f"Fail to {user_id} {e}")
@@ -127,7 +127,7 @@ async def send_afterwork_message():
                     ]
     for user_id in user_id_list:
         try:
-            await line_bot_api1.push_message(user_id, message)
+            line_bot_api1.push_message(user_id, message)
             print(f"Success to {user_id}")
         except LineBotApiError as e:
             print(f"Fail to {user_id} {e}")
@@ -149,33 +149,8 @@ async def handle_callback(request: Request):
     except InvalidSignatureError:
         raise HTTPException(status_code=400, detail="Invalid signature")
     
-    for event in events:
+    for event in events:        
         
-        if isinstance(event, FollowEvent):
-            profile = line_bot_api1.get_profile(event.source.user_id)
-            user_info = {
-                "user_id": profile.user_id,
-                "display_name": profile.display_name
-            }
-
-            file_name = "user_info.json"           
-            try:
-                with open(file_name, 'r', encoding='utf-8') as json_file:
-                    users_info = json.load(json_file)
-            except FileNotFoundError:
-                
-                users_info = []
-            
-           
-            if not any(user['user_id'] == user_info['user_id'] for user in users_info):
-                
-                users_info.append(user_info)
-            
-                
-                with open(file_name, 'w', encoding='utf-8') as json_file:
-                    json.dump(users_info, json_file, ensure_ascii=False, indent=4)            
-            
-            continue
         if not isinstance(event, MessageEvent):
             continue        
 
