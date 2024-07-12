@@ -183,7 +183,7 @@ async def handle_callback(request: Request):
             msg = event.message.text
             ret = generate_gemini_text_complete(f'{msg}, reply in zh-TW:')
             # reply_text = ret.text + "\n" + str(event.source.user_id)
-            reply_text = ret.text+str(global_group_ids)+"\n"+str(global_user_ids)
+            reply_text = ret.text
             reply_msg = TextSendMessage(text=reply_text)
             await line_bot_api.reply_message(
                 event.reply_token,                
