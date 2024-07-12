@@ -166,22 +166,24 @@ async def handle_callback(request: Request):
     except InvalidSignatureError:
         raise HTTPException(status_code=400, detail="Invalid signature")
     
-    for event in events:        
+    for event in events: 
+        if hasattr(event.source, 'group_id') and event.source.group_id not in global_group_ids:
+            global_group_ids.add(event.source.group_id)
+        if hasattr(event.source, 'user_id')  and event.source.user_id not in global_user_ids:
+            global_user_ids.add(event.source.user_id)       
+        
+
         
         if not isinstance(event, MessageEvent):
             continue        
 
         if (event.message.type == "text"):
-
-            if hasattr(event.source, 'group_id') and event.source.group_id not in global_group_ids:
-                global_group_ids.add(event.source.group_id)
-            if hasattr(event.source, 'user_id')  and event.source.user_id not in global_user_ids:
-                global_user_ids.add(event.source.user_id)
+            
             # Provide a default value for reply_msg
             msg = event.message.text
             ret = generate_gemini_text_complete(f'{msg}, reply in zh-TW:')
             # reply_text = ret.text + "\n" + str(event.source.user_id)
-            reply_text = ret.text
+            reply_text = ret.text+str(global_group_ids)+"\n"+str(global_user_ids)
             reply_msg = TextSendMessage(text=reply_text)
             await line_bot_api.reply_message(
                 event.reply_token,                
