@@ -99,7 +99,7 @@ def generate_result_from_image(img, prompt):
 @app.post("/usermessage")
 async def send_user_message():
     
-    result=generate_gemini_text_complete('https://goodinfo.tw/tw/StockAnnounceList.asp?START_DT=2024%2F7%2F6&END_DT=2024%2F7%2F12 \n,爬取這個網址並回傳股市訊息一覽')
+    result=generate_gemini_text_complete('https://goodinfo.tw/tw/StockAnnounceList.asp?START_DT=2024%2F7%2F6&END_DT=2024%2F7%2F12 \n,爬取這個網址並回傳股市新聞標題')
     message = TextSendMessage(text=result.text)
     #create user_id list
     user_id_list = ['Uf7bc16da786923d10a1a8f6110a8b947','U0a954d9a98db73941f98259b1f4bfb83',
@@ -159,10 +159,10 @@ async def handle_callback(request: Request):
             msg = event.message.text
             ret = generate_gemini_text_complete(f'{msg}, reply in zh-TW:')
             # reply_text = ret.text + "\n" + str(event.source.user_id)
-            reply_text = ret.text
+            reply_text = ret.text+ "\n" + str(event.source.group_id)
             reply_msg = TextSendMessage(text=reply_text)
             await line_bot_api.reply_message(
-                event.reply_token,
+                event.reply_token,                
                 [reply_msg]  
             )
                         
