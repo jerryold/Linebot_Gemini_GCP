@@ -99,7 +99,7 @@ def generate_result_from_image(img, prompt):
 @app.post("/usermessage")
 async def send_user_message():
     
-    result=generate_gemini_text_complete('please say some morning motivation word for work, and find out most popular article on PTT or Dcard platform every day also attach each article link,please reply in zh-TW:')
+    result=generate_gemini_text_complete('https://goodinfo.tw/tw/StockAnnounceList.asp?START_DT=2024%2F7%2F6&END_DT=2024%2F7%2F12,爬取這個網址,並回傳今日最新股市消息')
     message = TextSendMessage(text=result.text)
     #create user_id list
     user_id_list = ['Uf7bc16da786923d10a1a8f6110a8b947','U0a954d9a98db73941f98259b1f4bfb83',
