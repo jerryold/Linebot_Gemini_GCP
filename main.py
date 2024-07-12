@@ -99,7 +99,7 @@ def generate_result_from_image(img, prompt):
 @app.post("/usermessage")
 async def send_user_message():
     
-    result=generate_gemini_text_complete(',爬取以下網址 https://goodinfo.tw/tw/StockAnnounceList.asp?START_DT=2024%2F7%2F6&END_DT=2024%2F7%2F12, 並回傳今日最新股市消息')
+    result=generate_gemini_text_complete('爬取以下網址 https://goodinfo.tw/tw/StockAnnounceList.asp?START_DT=2024%2F7%2F6&END_DT=2024%2F7%2F12, 並回傳今日最新股市消息')
     message = TextSendMessage(text=result.text)
     #create user_id list
     user_id_list = ['Uf7bc16da786923d10a1a8f6110a8b947','U0a954d9a98db73941f98259b1f4bfb83',
