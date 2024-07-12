@@ -71,7 +71,7 @@ parser = WebhookParser(channel_secret)
 # Initialize the Gemini Pro API
 genai.configure(api_key=gemini_key)
 
-
+global_group_ids = set()
 
 
 def generate_gemini_text_complete(prompt):
@@ -155,11 +155,14 @@ async def handle_callback(request: Request):
             continue        
 
         if (event.message.type == "text"):
+
+            if hasattr(event.source, 'group_id') and event.source.group_id not in global_group_ids:
+                global_group_ids.add(event.source.group_id)
             # Provide a default value for reply_msg
             msg = event.message.text
             ret = generate_gemini_text_complete(f'{msg}, reply in zh-TW:')
             # reply_text = ret.text + "\n" + str(event.source.user_id)
-            reply_text = ret.text+ "\n" + str(event.source.group_id)
+            reply_text = ret.text+ "\n" + str(global_group_ids)
             reply_msg = TextSendMessage(text=reply_text)
             await line_bot_api.reply_message(
                 event.reply_token,                
